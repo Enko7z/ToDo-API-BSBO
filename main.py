@@ -1,54 +1,27 @@
 # Главный файл приложения
 from fastapi import FastAPI
-from typing import List, Dict, Any
-from datetime import datetime
+from routers import tasks 
 
 app = FastAPI(
     title="ToDo лист API",
     description="API для управления задачами с использованием матрицы Эйзенхауэра",
-    version="1.0.0"
+    version="1.0.0",
+    contact={"name": "Надя"}
 )
 
-# Временное хранилище (позже будет заменено на PostgreSQL)
-tasks_db: List[Dict[str, Any]] = [
-    {
-        "id": 1,
-        "title": "Сдать проект по FastAPI",
-        "description": "Завершить разработку API и написать документацию",
-        "is_important": True,
-        "is_urgent": True,
-        "quadrant": "Q1",
-        "completed": False,
-        "created_at": datetime.now()
-    },
-    {
-        "id": 2,
-        "title": "Изучить SQLAlchemy",
-        "description": "Прочитать документацию и попробовать примеры",
-        "is_important": True,
-        "is_urgent": False,
-        "quadrant": "Q2",
-        "completed": False,
-        "created_at": datetime.now()
-    },
-    {
-        "id": 3,
-        "title": "Сходить на лекцию",
-        "description": None,
-        "is_important": False,
-        "is_urgent": True,
-        "quadrant": "Q3",
-        "completed": False,
-        "created_at": datetime.now()
-    },
-    {
-        "id": 4,
-        "title": "Посмотреть сериал",
-        "description": "Новый сезон любимого сериала",
-        "is_important": False,
-        "is_urgent": False,
-        "quadrant": "Q4",
-        "completed": True,
-        "created_at": datetime.now()
-    },
-]
+app.include_router(tasks.router, prefix="/api")
+
+@app.get("/")
+async def get_user() -> dict:
+    return {
+        "message": "Привет, студент!",
+        "api_title": app.title,
+        "api_description": app.description,
+        "api_version": app.version,
+        "api_author": app.contact,
+    }
+
+@app.post("/tasks")
+async def create_task(task: dict):
+    return {"message": "Запись успешно создана!", "task": task}
+
