@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
 from sqlalchemy.sql import func
 from database import Base
+
 class Task(Base):
     __tablename__ = "tasks"
     id = Column(
@@ -8,9 +9,9 @@ class Task(Base):
         primary_key=True, # Первичный ключ
         index=True, # Создать индекс для быстрого поиска
         autoincrement=True # Автоматическая генерация
- )
+    )
     title = Column(
-        String(256), # Text = текст неограниченной длины
+        Text, # Text = текст неограниченной длины
         nullable=False # Не может быть NULL
     )
 
@@ -52,18 +53,25 @@ class Task(Base):
         DateTime(timezone=True),
         nullable=True # NULL пока задача не завершена
     )
-    def __repr__(self) -> str:
-        return f"<Task(id={self.id}, title='{self.title}', quadrant='{self.quadrant}')>"
 
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "is_important": self.is_important,
-            "is_urgent": self.is_urgent,
-            "quadrant": self.quadrant,
-            "completed": self.completed,
-            "created_at": self.created_at,
-            "completed_at": self.completed_at
-        }
+    deadline_at = Column(
+            DateTime(timezone=True),
+            nullable=True
+    )
+
+def __repr__(self) -> str:
+    return f"<Task(id={self.id}, title='{self.title}', quadrant='{self.quadrant}')>"
+
+def to_dict(self) -> dict:
+    return {
+        "id": self.id,
+        "title": self.title,
+        "description": self.description,
+        "is_important": self.is_important,
+        "is_urgent": self.is_urgent,
+        "quadrant": self.quadrant,
+        "completed": self.completed,
+        "created_at": self.created_at,
+        "completed_at": self.completed_at,
+        "deadline_at": self.deadline_at
+    }

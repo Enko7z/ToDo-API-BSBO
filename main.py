@@ -4,6 +4,7 @@ from database import init_db, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from routers import tasks, stats
+from scheduler import start_scheduler
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,15 +13,19 @@ async def lifespan(app: FastAPI):
     print(" Инициализация базы данных...")
     # Создаем таблицы (если их нет)
     await init_db()
+    print("База данных инициализирована!")
+    shulder = start_scheduler()
+
     print(" Приложение готово к работе!")
     yield # Здесь приложение работает
-
+    print("Остановка планировщика...")
+    shulder.shutdown()
     print(" Остановка приложения...")
        
 app = FastAPI(
     title="ToDo лист API",
     description="API для управления задачами с использованием матрицы Эйзенхауэра",
-    version="2.0.0",
+    version="2.1.0",
     contact={"name": "Надя"},
     lifespan=lifespan
 )
@@ -32,7 +37,7 @@ app.include_router(stats.router, prefix="/api/v2")
 async def read_root() -> dict:
     return {
         "message": "Task Manager API - Управление задачами по матрице Эйзенхауэра",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "database": "PostgreSQL (Supabase)",
         "docs": "/docs",
         "redoc": "/redoc",
@@ -42,9 +47,6 @@ async def read_root() -> dict:
 async def health_check(
  db: AsyncSession = Depends(get_async_session)
 ) -> dict:
-    """
-    Проверка здоровья API и динамическая проверка подключения к БД.
-    """
     try:
         # Пытаемся выполнить простейший запрос к БД
         await db.execute(text("SELECT 1"))
